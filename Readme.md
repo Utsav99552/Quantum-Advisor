@@ -197,12 +197,12 @@ An execution trace is stored at `logs/agent_trace.jsonl`. It records events from
 
 ## 📦 CA3 Submission Checklist
 
-- [ ] Architecture diagram showing data flow and orchestration
-- [ ] Agent responsibilities and interaction rules
-- [ ] Input/output JSON schemas with sample payloads
-- [ ] A genuine execution trace
-- [ ] Automated test results
-- [ ] Deployment URL (if successfully deployed)
+      Architecture diagram showing data flow and orchestration
+      Agent responsibilities and interaction rules
+      Input/output JSON schemas with sample payloads
+      A genuine execution trace
+      Automated test results
+      Deployment URL :- https://quantum-advisor.onrender.com/
 
 ## ⚠️ Limitations
 
@@ -218,14 +218,6 @@ An execution trace is stored at `logs/agent_trace.jsonl`. It records events from
 
 Try the deployed application to analyze stocks, upload a portfolio CSV, and view risk insights and per-stock recommendations.
 
-## 🛣️ Future Improvements
-
-- [ ] Stronger validation of market data
-- [ ] More robust news and sentiment analysis
-- [ ] Improved strategy evaluation and backtesting
-- [ ] Portfolio optimization
-- [ ] Monitoring and error reporting
-- [ ] Better privacy and authentication controls
 
 ---
 
