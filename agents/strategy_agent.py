@@ -1,4 +1,7 @@
 
+from services.llm_service import ask_llm
+
+
 class StrategyAgent:
 
     def analyze(self, u, m, f, r, sentiment=None, feedback=None):
@@ -11,11 +14,8 @@ class StrategyAgent:
         base_risk = r["riskScore"]
         sentiment_weight = 8
 
-        effective_risk = (
-            base_risk - sentiment_score * sentiment_weight
-        )
+        effective_risk = base_risk - sentiment_score * sentiment_weight
 
-        # Apply a revision penalty only when RiskAgent requests it.
         if feedback.get("needsRevision"):
             effective_risk += 8
 
@@ -39,6 +39,31 @@ class StrategyAgent:
             "Fundamentals checked",
             f"News sentiment: {news_sentiment}",
         ]
+
+        prompt = f"""
+You are a financial analysis assistant.
+Explain this stock analysis in 2-3 concise sentences.
+Do not invent missing data or guarantee returns.
+
+Market trend: {m.get('trend', 'Unknown')}
+RSI: {m.get('rsi', 'Unknown')}
+Volatility: {m.get('volatility', 'Unknown')}
+Fundamentals: {f}
+Risk score: {r.get('riskScore', 'Unknown')}
+Risk level: {r.get('riskLevel', 'Unknown')}
+Rule-based recommendation: {recommendation}
+News sentiment: {news_sentiment}
+Risk review feedback: {feedback.get('reason', 'None')}
+"""
+
+        ai_reasoning = ask_llm(prompt)
+
+        if (
+            ai_reasoning
+            and not ai_reasoning.startswith("AI reasoning not available")
+            and not ai_reasoning.startswith("GEMINI ERROR")
+        ):
+            reasoning.append(f"AI reasoning: {ai_reasoning}")
 
         if feedback.get("needsRevision"):
             reasoning.append(
