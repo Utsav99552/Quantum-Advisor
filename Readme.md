@@ -212,11 +212,11 @@ An execution trace is stored at `logs/agent_trace.jsonl`. It records events from
 - LLM-generated text, where enabled, may contain errors.
 - This prototype is not a substitute for a SEBI-registered investment adviser or independent financial research.
 
-## 🌐 Deployment
+## 🚀 Live Demo
 
-**Live application:** _Add the verified public deployment URL here._
+**Live Application:** [Quantum Advisor](https://quantum-advisor.onrender.com)
 
-> Do not mark the application as deployed until the hosted version has been tested successfully.
+Try the deployed application to analyze stocks, upload a portfolio CSV, and view risk insights and per-stock recommendations.
 
 ## 🛣️ Future Improvements
 
