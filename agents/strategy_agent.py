@@ -1,57 +1,58 @@
+
 class StrategyAgent:
 
-    def analyze(self, u, m, f, r, sentiment=None):
-        """
-        Combines risk score with news sentiment to produce a final
-        recommendation.
-
-        sentimentScore influence:
-          +1 (Positive news) → lowers effective risk by 8 points → pushes toward BUY
-          -1 (Negative news) → raises effective risk by 8 points → pushes toward SELL
-           0 (Neutral)       → no adjustment
-        """
-
+    def analyze(self, u, m, f, r, sentiment=None, feedback=None):
         sentiment = sentiment or {}
-        sentiment_score  = sentiment.get("sentimentScore", 0)   # -1 / 0 / +1
-        news_sentiment   = sentiment.get("newsSentiment", "Neutral")
+        feedback = feedback or {}
+
+        sentiment_score = sentiment.get("sentimentScore", 0)
+        news_sentiment = sentiment.get("newsSentiment", "Neutral")
 
         base_risk = r["riskScore"]
+        sentiment_weight = 8
 
-        # Adjust effective risk based on news signal
-        SENTIMENT_WEIGHT = 8
-        effective_risk = base_risk - (sentiment_score * SENTIMENT_WEIGHT)
+        effective_risk = (
+            base_risk - sentiment_score * sentiment_weight
+        )
+
+        # Apply a revision penalty only when RiskAgent requests it.
+        if feedback.get("needsRevision"):
+            effective_risk += 8
+
         effective_risk = max(5, min(100, effective_risk))
 
-        # Recommendation thresholds
         if effective_risk < 20:
-            rec   = "BUY"
+            recommendation = "BUY"
             score = 35
         elif effective_risk < 40:
-            rec   = "HOLD"
+            recommendation = "HOLD"
             score = 18
         else:
-            rec   = "SELL"
+            recommendation = "SELL"
             score = 8
 
         price = m["currentPrice"]
 
-        # Build reasoning list
         reasoning = [
             "Trend-based analysis",
             "Risk score evaluated",
             "Fundamentals checked",
-            f"News sentiment: {news_sentiment} (score adjustment: {-sentiment_score * SENTIMENT_WEIGHT:+d})",
+            f"News sentiment: {news_sentiment}",
         ]
 
-        return {
-            "recommendation": rec,
-            "confidence":     "Moderate",
-            "buyScore":       score,
-            "effectiveRisk":  round(effective_risk, 1),
+        if feedback.get("needsRevision"):
+            reasoning.append(
+                "RiskAgent requested a revision: "
+                + feedback.get("reason", "Elevated risk")
+            )
 
+        return {
+            "recommendation": recommendation,
+            "confidence": "Moderate",
+            "buyScore": score,
+            "effectiveRisk": round(effective_risk, 1),
             "targetPrice1": round(price * 1.1, 2),
             "targetPrice2": round(price * 1.2, 2),
-            "stopLoss":     round(price * 0.9, 2),
-
+            "stopLoss": round(price * 0.9, 2),
             "reasoning": reasoning,
         }

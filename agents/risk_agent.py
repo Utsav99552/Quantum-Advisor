@@ -1,7 +1,7 @@
+
 class RiskAgent:
 
     def analyze(self, user, market, fund):
-
         risk = 0
         factors = []
 
@@ -9,7 +9,7 @@ class RiskAgent:
         vol = market["volatility"]
         trend = market["trend"]
 
-        # volatility
+        # Volatility
         if vol > 3:
             risk += 20
             factors.append("High volatility")
@@ -28,26 +28,46 @@ class RiskAgent:
         else:
             risk += 4
 
-        # trend
+        # Trend
         if trend == "Downtrend":
             risk += 10
+            factors.append("Downtrend")
         elif trend == "Sideways":
             risk += 6
+            factors.append("Sideways market")
         else:
             risk += 3
 
         risk = max(5, min(100, risk))
 
-        if risk < 25:
+        # Scores from the current formula normally max out at 43.
+        if risk < 20:
             level = "Low-Medium"
-        elif risk < 50:
+        elif risk < 32:
             level = "Medium"
         else:
             level = "High"
 
         return {
-
             "riskScore": risk,
             "riskLevel": level,
             "riskFactors": factors,
+        }
+
+    def review_strategy(self, strategy, risk):
+        """Review whether a BUY recommendation conflicts with base risk."""
+        recommendation = strategy.get("recommendation", "HOLD")
+        risk_score = risk.get("riskScore", 0)
+
+        needs_revision = (
+            recommendation == "BUY" and risk_score >= 25
+        )
+
+        return {
+            "needsRevision": needs_revision,
+            "reason": (
+                "BUY conflicts with elevated base risk."
+                if needs_revision
+                else "No risk-based revision required."
+            ),
         }

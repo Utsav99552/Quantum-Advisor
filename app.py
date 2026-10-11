@@ -16,7 +16,7 @@ from agents.portfolio_analyzer import PortfolioAnalyzer
 #  PATHS
 # ─────────────────────────────────────────────
 BASE_DIR     = os.path.dirname(os.path.abspath(__file__))
-FRONTEND_DIR = os.path.join(BASE_DIR, "..", "frontend")
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 DB_PATH      = os.path.join(BASE_DIR, "users.db")
 
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
