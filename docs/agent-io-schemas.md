@@ -444,5 +444,383 @@ For each component, document its method signature, required input fields, output
 
 \- The application is an educational decision-support prototype and does not provide guaranteed investment outcomes.
 
+\## 7. Market Agent
+
+
+
+\*\*File:\*\* `agents/market\_agent.py`
+
+
+
+\*\*Method:\*\* `analyze(ticker)`
+
+
+
+\### Input
+
+
+
+A stock ticker string, such as `"RELIANCE"`.
+
+
+
+\### Output fields
+
+
+
+| Field | Type | Description |
+
+|---|---|---|
+
+| `ticker` | String | Uppercase stock symbol |
+
+| `currentPrice` | Number | Latest available closing price |
+
+| `priceDisplay` | String | Formatted price for display |
+
+| `trend` | String | `Uptrend`, `Downtrend`, or `Sideways` |
+
+| `rsi` | Number | Calculated RSI indicator |
+
+| `volatility` | Number | Standard deviation of percentage returns, multiplied by 100 |
+
+| `priceSource` | String | `MarketStack` or `AlphaVantage` |
+
+
+
+\### Sample input
+
+
+
+```json
+
+"RELIANCE"
+
+```
+
+
+
+\### Illustrative output
+
+
+
+```json
+
+{
+
+&#x20; "ticker": "RELIANCE",
+
+&#x20; "currentPrice": 1450.50,
+
+&#x20; "priceDisplay": "₹1450.50",
+
+&#x20; "trend": "Uptrend",
+
+&#x20; "rsi": 55.25,
+
+&#x20; "volatility": 1.25,
+
+&#x20; "priceSource": "MarketStack"
+
+}
+
+```
+
+
+
+The values above are examples, not verified live market data.
+
+
+
+\### Data flow and error handling
+
+
+
+1\. The agent first attempts to retrieve historical prices from MarketStack.
+
+2\. If no usable prices are returned, it attempts Alpha Vantage.
+
+3\. It calculates RSI, volatility, and trend from the retrieved prices.
+
+4\. If neither provider supplies usable data, `analyze()` raises an exception.
+
+
+
+The implementation currently does not explicitly validate that enough prices exist for every rolling indicator calculation.
+
+
+
+\## 8. Risk Agent
+
+
+
+\*\*File:\*\* `agents/risk\_agent.py`
+
+
+
+\### A. Initial risk assessment
+
+
+
+\*\*Method:\*\* `analyze(user, market, fund)`
+
+
+
+\#### Required market input fields
+
+
+
+| Field | Type | Purpose |
+
+|---|---|---|
+
+| `rsi` | Number | RSI-based risk rule |
+
+| `volatility` | Number | Volatility-based risk rule |
+
+| `trend` | String | Trend-based risk rule |
+
+
+
+The method also accepts user and fundamentals dictionaries, but the current scoring formula does not use their contents.
+
+
+
+\#### Sample input
+
+
+
+```json
+
+{
+
+&#x20; "user": {
+
+&#x20;   "userType": "Intermediate Investor"
+
+&#x20; },
+
+&#x20; "market": {
+
+&#x20;   "rsi": 75,
+
+&#x20;   "volatility": 2,
+
+&#x20;   "trend": "Downtrend"
+
+&#x20; },
+
+&#x20; "fundamentals": {
+
+&#x20;   "financialHealth": "Unknown",
+
+&#x20;   "healthScore": 50
+
+&#x20; }
+
+}
+
+```
+
+
+
+\#### Sample output
+
+
+
+```json
+
+{
+
+&#x20; "riskScore": 30,
+
+&#x20; "riskLevel": "Medium",
+
+&#x20; "riskFactors": \[
+
+&#x20;   "Overbought",
+
+&#x20;   "Downtrend"
+
+&#x20; ]
+
+}
+
+```
+
+
+
+The example follows the current rules: volatility of 2 contributes 10 points, RSI of 75 contributes 10 points, and a downtrend contributes 10 points.
+
+
+
+\### B. Strategy review
+
+
+
+\*\*Method:\*\* `review\_strategy(strategy, risk)`
+
+
+
+The review requests a revision when the recommendation is `BUY` and the base risk score is at least 25.
+
+
+
+\#### Sample input
+
+
+
+```json
+
+{
+
+&#x20; "strategy": {
+
+&#x20;   "recommendation": "BUY"
+
+&#x20; },
+
+&#x20; "risk": {
+
+&#x20;   "riskScore": 30,
+
+&#x20;   "riskLevel": "Medium"
+
+&#x20; }
+
+}
+
+```
+
+
+
+\#### Sample output
+
+
+
+```json
+
+{
+
+&#x20; "needsRevision": true,
+
+&#x20; "reason": "BUY conflicts with elevated base risk."
+
+}
+
+```
+
+
+
+The orchestrator uses `needsRevision` to decide whether to request one revised strategy.
+
+
+
+\## 9. Fundamentals Agent
+
+
+
+\*\*File:\*\* `agents/fundamentals\_agent.py`
+
+
+
+\*\*Method:\*\* `analyze(ticker)`
+
+
+
+\### Input
+
+
+
+A stock ticker string. The current implementation accepts the argument but does not use it to retrieve company financial data.
+
+
+
+\### Sample input
+
+
+
+```json
+
+"RELIANCE"
+
+```
+
+
+
+\### Actual output structure
+
+
+
+```json
+
+{
+
+&#x20; "pe": null,
+
+&#x20; "roe": null,
+
+&#x20; "de": null,
+
+&#x20; "financialHealth": "Unknown",
+
+&#x20; "healthScore": 50
+
+}
+
+```
+
+
+
+\### Current limitation
+
+
+
+This agent currently returns fixed placeholder values. It does not calculate P/E, ROE, debt-to-equity, or company financial health from live financial statements. The `healthScore` of 50 is a default value, not a measured financial result.
+
+
+
+This limitation should be disclosed in the CA3 report and presentation.
+
+
+
+\## 10. Cross-Agent Data Flow
+
+
+
+The orchestrator connects these agents as follows:
+
+
+
+1\. The Market Agent produces price and indicator data.
+
+2\. The Fundamentals Agent produces the current fundamentals output structure.
+
+3\. The Risk Agent uses market RSI, volatility, and trend to calculate a base risk score.
+
+4\. The Strategy Agent uses the risk score, current price, and sentiment output to generate a recommendation.
+
+5\. The Risk Agent reviews the recommendation.
+
+6\. If required, the Strategy Agent receives one revision request.
+
+7\. The Portfolio Agent and Report Agent process the subsequent results.
+
+
+
+The current workflow is a combination of deterministic rules, API-based market-data retrieval, and conditional orchestration. Do not describe every component as an autonomous LLM agent.
+
+
+
+\## 11. Contract Validation Notes
+
+
+
+The sample payloads in this document explain the current method interfaces. They are not formal runtime-enforced JSON Schema definitions.
+
+
+
+Before production use, add input validation, type checks, provider timeouts, and explicit handling for missing or invalid market data.
+
 
 
