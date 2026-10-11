@@ -1,347 +1,236 @@
-# Investment Analysis Agent
+<div align="center">
 
-> A FinTech decision-support application that uses a modular multi-agent architecture to analyze equities, assess investor risk, and generate personalized investment insights.
+# 🔮 Quantum Advisor
 
-## 1. Project Overview
+### Multi-Agent Investment Analysis
 
-The **Investment Analysis Agent** is an AI-oriented FinTech application designed to help retail investors interpret multiple dimensions of equity investment analysis in one workflow.
+*Market, fundamentals, news, risk, strategy and portfolio insights, unified in one workflow.*
 
-Instead of relying on a single monolithic analysis, the application separates the task into specialized agents for:
+![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Backend-Flask-000000?logo=flask&logoColor=white)
+![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?logo=sqlite&logoColor=white)
+![Tests](https://img.shields.io/badge/pytest-8%20passed-brightgreen?logo=pytest&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Educational%20Prototype-orange)
 
-- User profiling and risk assessment
-- Market analysis
-- Fundamental analysis
-- News and sentiment analysis
-- Strategy/recommendation generation
-- Portfolio analysis
-- Report generation
+[Overview](#-overview) •
+[Features](#-key-features) •
+[Architecture](#-architecture) •
+[Quick Start](#-quick-start) •
+[Testing](#-testing) •
+[Limitations](#-limitations)
 
-The application is intended as a **decision-support and educational system**, not as a replacement for a registered financial advisor.
+</div>
 
-## 2. Problem Statement
+---
 
-Retail investors often have access to large amounts of financial information but may find it difficult to combine:
+> [!IMPORTANT]
+> Quantum Advisor is an **educational decision-support prototype**. It is **not** a substitute for professional financial advice.
 
-- Market trends and technical indicators
-- Company fundamentals
-- News and sentiment
-- Personal risk tolerance
-- Investment horizon
-- Portfolio constraints
+## 📖 Overview
 
-The project addresses this problem by bringing these analytical dimensions into a single modular workflow and producing a consolidated result.
+Investors often have to evaluate market trends, company fundamentals, news sentiment, personal risk tolerance and portfolio constraints **separately**. Quantum Advisor brings these pieces into **one workflow**, so the results are easier to interpret.
 
-## 3. Key Features
+A Flask backend coordinates specialized agents and supporting services, then produces a single consolidated analysis report.
 
-### Investor Profiling
-Processes user information and establishes an investor/risk profile that can be used to personalize the analysis.
+## ✨ Key Features
 
-### Market Analysis
-Analyzes market-related information such as price behaviour, trend, momentum and technical indicators supported by the application's data layer.
+| | Feature | What it does |
+|---|---|---|
+| 👤 | **Investor Profiling** | Processes user inputs for personalized analysis |
+| 📈 | **Market Analysis** | Evaluates market and price signals from configured data services |
+| 🏢 | **Fundamental Analysis** | Produces a structured assessment from available company information |
+| 📰 | **News & Sentiment** | Processes news information when the data pipeline is available |
+| ⚠️ | **Risk Assessment** | Scores risk using the implemented logic |
+| 🎯 | **Strategy Generation** | Builds a recommendation from the available analytical outputs |
+| 💼 | **Portfolio Analysis** | Provides portfolio-oriented calculations and insights |
+| 📄 | **Report Generation** | Consolidates everything into a user-facing report |
 
-### Fundamental Analysis
-Evaluates company-level financial indicators and produces a structured view of financial health.
+## 🏗️ Architecture
 
-### News & Sentiment Analysis
-Processes company-related news/context and converts it into a structured sentiment signal where the configured data/AI pipeline is available.
+<div align="center">
 
-### Risk Analysis
-Combines relevant market and fundamental signals to produce a risk-oriented assessment.
+<img src="docs/architecture.svg" alt="Quantum Advisor system architecture diagram" width="100%">
 
-### Strategy Generation
-Uses the outputs of the analytical components to generate an investment strategy/recommendation rather than relying on one isolated indicator.
+</div>
 
-### Portfolio Analysis
-Uses portfolio-related information to calculate position/allocation-oriented insights.
+<details>
+<summary><b>View as Mermaid diagram</b> (text-based, easy to edit)</summary>
 
-### Report Generation
-Consolidates the analysis into a user-facing report, including the relevant recommendation, risk information and supporting analysis.
+```mermaid
+flowchart TD
+    UI[🖥️ User Interface] --> APP[Flask Application<br/>app.py]
+    APP --> ORCH{{Agent Orchestrator}}
 
-## 4. AI / Agentic AI Component
+    ORCH --> UA[👤 User Agent]
+    ORCH --> MA[📈 Market Agent]
+    ORCH --> FA[🏢 Fundamentals Agent]
+    ORCH --> NA[📰 News Sentiment Agent]
 
-The central AI contribution of the project is the **multi-agent design**.
+    UA --> RISK
+    MA --> RISK
+    FA --> RISK
+    NA --> RISK
 
-Each agent has a focused responsibility and produces structured information that can be consumed by other components. This separation makes it possible to improve one analytical capability without redesigning the complete application.
-
-The AI-oriented components include:
-
-1. **User Agent** — user/investor profiling.
-2. **Market Agent** — market-related analysis and interpretation.
-3. **Fundamentals Agent** — company fundamental analysis.
-4. **News Sentiment Agent** — news/context and sentiment processing.
-5. **Risk Agent** — risk evaluation from analytical signals.
-6. **Strategy Agent** — strategy/recommendation generation.
-7. **Portfolio Agent** — portfolio-oriented advice.
-8. **Portfolio Analyzer** — portfolio calculations/analysis.
-9. **Report Agent** — consolidation and report generation.
-
-The project also contains an LLM service, allowing the application to use an LLM-based component where configured. The news/sentiment and report-generation layers are the natural locations for language-model-assisted reasoning and summarization.
-
-## 5. Architecture
-
-```text
-                         ┌─────────────────────┐
-                         │       User/UI       │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │    Flask / app.py  │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │    Orchestrator     │
-                         └──────────┬──────────┘
-                                    │
-              ┌─────────────────────┼─────────────────────┐
-              │                     │                     │
-              ▼                     ▼                     ▼
-       ┌────────────┐        ┌────────────┐        ┌────────────┐
-       │ User Agent │        │Market Agent│        │Fundamentals│
-       └─────┬──────┘        └─────┬──────┘        │   Agent    │
-             │                     │               └─────┬──────┘
-             └─────────────────────┼─────────────────────┘
-                                   │
-              ┌────────────────────┼────────────────────┐
-              ▼                    ▼                    ▼
-       ┌──────────────┐      ┌────────────┐      ┌──────────────┐
-       │News/Sentiment│      │ Risk Agent │      │Strategy Agent│
-       │    Agent     │      └─────┬──────┘      └──────┬───────┘
-       └──────┬───────┘            │                    │
-              └────────────────────┼────────────────────┘
-                                   │
-                         ┌─────────┴─────────┐
-                         ▼                   ▼
-                  ┌────────────┐      ┌───────────────┐
-                  │Portfolio   │      │Portfolio      │
-                  │Agent       │      │Analyzer       │
-                  └─────┬──────┘      └───────┬───────┘
-                        └──────────┬───────────┘
-                                   ▼
-                         ┌─────────────────────┐
-                         │    Report Agent     │
-                         └──────────┬──────────┘
-                                    ▼
-                         ┌─────────────────────┐
-                         │ Final Analysis      │
-                         │ / Report            │
-                         └─────────────────────┘
+    RISK[⚠️ Risk Assessment] --> STRAT[🎯 Strategy Agent]
+    STRAT -. review / feedback .-> RISK
+    STRAT --> PORT[💼 Portfolio Agent<br/>+ Portfolio Analyzer]
+    PORT --> REP[📄 Report Agent]
+    REP --> OUT([✅ Final Analysis])
 ```
 
-### Supporting Services
+</details>
 
-The `services/` layer separates external/data/model integrations from the agent logic:
+The orchestrator coordinates the workflow and passes structured results between components. The Risk Agent can review the generated strategy and request a revision when the implemented conditions require it.
 
-- `llm_service.py` — LLM integration/service layer
-- `marketstack_service.py` — MarketStack data integration
-- `price_service.py` — Price/data retrieval and processing
+> [!NOTE]
+> This diagram shows the intended workflow. Confirm the exact execution order against the current implementation before submission.
 
-The separation between **agents**, **services**, and the **orchestrator** keeps the application modular and easier to maintain.
+### 🤖 Agent Responsibilities
 
-## 6. Repository Structure
+| Component | Responsibility |
+|---|---|
+| **Orchestrator** | Coordinates execution and information flow |
+| **User Agent** | Processes investor inputs and profile information |
+| **Market Agent** | Analyzes available market-related signals |
+| **Fundamentals Agent** | Evaluates available company fundamentals |
+| **News Sentiment Agent** | Processes configured news and sentiment inputs |
+| **Risk Agent** | Assesses risk and reviews the proposed strategy |
+| **Strategy Agent** | Generates a recommendation from the available analysis |
+| **Portfolio Agent** | Produces portfolio-oriented insights |
+| **Portfolio Analyzer** | Performs portfolio calculations |
+| **Report Agent** | Consolidates outputs into the final report |
 
-```text
-Investment-Analysis-Agent/
-│
-├── agents/
-│   ├── fundamentals_agent.py
-│   ├── market_agent.py
-│   ├── news_sentiment_agent.py
-│   ├── portfolio_agent.py
-│   ├── portfolio_analyzer.py
-│   ├── report_agent.py
-│   ├── risk_agent.py
-│   ├── strategy_agent.py
-│   └── user_agent.py
-│
-├── services/
-│   ├── llm_service.py
-│   ├── marketstack_service.py
-│   └── price_service.py
-│
-├── app.py
-├── config.py
-├── orchestrator.py
-├── requirements.txt
-├── test_accuracy.py
-├── test_report_*.html
-└── users.db
-```
+> [!NOTE]
+> Separate agents do not by themselves imply autonomous LLM reasoning. The actual degree of autonomy depends on each component's implementation.
 
-### Important GitHub cleanup
-
-Do **not** commit the local Python environment or generated cache files. Add these to `.gitignore`:
-
-```gitignore
-venv/
-__pycache__/
-*.pyc
-.env
-```
-
-If `users.db` contains real/personal user information, it should also be excluded from the public repository and replaced with a safe sample database.
-
-## 7. Technology Stack
+## 🧰 Technology Stack
 
 | Layer | Technology |
 |---|---|
 | Language | Python |
 | Backend | Flask |
-| Cross-Origin Support | Flask-CORS |
-| AI/LLM | OpenAI-compatible LLM service layer |
-| Market Data | MarketStack / price service |
-| Financial Data | Market/price service layer |
-| Database | SQLite (`users.db`) |
-| Testing | Python test script + generated HTML reports |
-| Development | VS Code / Git / GitHub |
+| Frontend | Project frontend served through the application |
+| Data integration | MarketStack and configured price/news services |
+| Database | SQLite |
+| LLM integration | LLM service layer (when configured) |
+| Testing | pytest |
+| Version control | Git & GitHub |
 
-## 8. Installation
+## 📁 Repository Structure
+
+```text
+Quantum-Advisor/
+├── agents/            # Specialized analysis agents
+├── services/          # Data and LLM service layers
+├── frontend/          # User interface
+├── tests/             # pytest suite
+├── logs/              # Execution traces
+├── app.py             # Flask entry point
+├── config.py          # Configuration and env variable names
+├── orchestrator.py    # Workflow coordination
+├── requirements.txt
+└── README.md
+```
+
+*Refer to the repository for the complete list of files.*
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Python 3.8+
+- Python
 - Git
-- Internet connection when external APIs are enabled
+- Internet access for any enabled external APIs
 
-### Clone the repository
+### 1. Clone and install
 
-```bash
-git clone https://github.com/srishti2005/Quantam_Advisor
-cd <REPOSITORY_FOLDER>
-```
+```powershell
+git clone https://github.com/Utsav99552/Quantum-Advisor.git
+cd Quantum-Advisor
 
-### Create a virtual environment
-
-Windows:
-
-```bash
 python -m venv venv
-venv\Scripts\activate
+.\venv\Scripts\Activate.ps1
+
+python -m pip install -r requirements.txt
 ```
 
-macOS/Linux:
+### 2. Configure API keys
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
+The app reads API keys from environment variables. Use the variable names expected by `config.py`, for example:
+
+```powershell
+$env:MARKETSTACK_API_KEY   = "your_key"
+$env:ALPHAVANTAGE_API_KEY  = "your_key"
+$env:NEWS_API_KEY          = "your_key"
 ```
 
-### Install dependencies
+> [!WARNING]
+> Replace the example values locally. Never commit real credentials to GitHub or share them in screenshots.
 
-```bash
-pip install -r requirements.txt
-```
+### 3. Run
 
-## 9. Configuration
-
-Keep API keys and other secrets outside the source code.
-
-Create a `.env` file if the implementation/configuration expects environment variables:
-
-```env
-OPENAI_API_KEY=your_key_here
-MARKETSTACK_API_KEY=your_key_here
-```
-
-Use the variable names defined in `config.py` if they differ from the examples above.
-
-**Never commit API keys to GitHub.**
-
-## 10. Running the Application
-
-From the project root:
-
-```bash
+```powershell
 python app.py
 ```
 
-The Flask application should then expose the routes configured in `app.py`.
+Open the local URL printed by Flask in your browser. The exact URL and port depend on the application configuration.
 
-If the application prints a local URL in the terminal, open that URL in a browser.
+## 🧪 Testing
 
-## 11. How the Analysis Works
-
-A typical analysis follows this conceptual flow:
-
-```text
-User Inputs
-     ↓
-Investor Profiling
-     ↓
-Market / Price Analysis
-     ↓
-Fundamental Analysis
-     ↓
-News & Sentiment
-     ↓
-Risk Assessment
-     ↓
-Strategy Generation
-     ↓
-Portfolio Analysis
-     ↓
-Report Generation
-     ↓
-Final Investment Analysis
+```powershell
+pytest -q
 ```
 
-The orchestrator coordinates the processing rather than placing the complete investment-analysis logic inside a single function.
+**Latest recorded result:** ✅ 8 tests passed
 
-## 12. Testing
+The suite covers risk assessment, orchestration, and mocked market-agent API interactions.
 
-The repository contains:
+> [!NOTE]
+> Passing mocked tests verifies the tested code paths. It does not prove that external API credentials or live integrations are working.
 
-- `test_accuracy.py` for accuracy/logic validation
-- HTML test reports generated during testing
+## 🔍 Execution Trace
 
-Run the available test script with:
+An execution trace is stored at `logs/agent_trace.jsonl`. It records events from an analysis run, including agent completion, risk assessment, strategy review and run completion.
 
-```bash
-python test_accuracy.py
-```
+- Use a trace from a **real, successful run** as evidence.
+- Check logs for sensitive information before including them in a public submission.
 
-For additional tests, follow the test cases and expected outputs implemented in the repository.
+## 📦 CA3 Submission Checklist
 
-## 13. Data and Model Limitations
+- [ ] Architecture diagram showing data flow and orchestration
+- [ ] Agent responsibilities and interaction rules
+- [ ] Input/output JSON schemas with sample payloads
+- [ ] A genuine execution trace
+- [ ] Automated test results
+- [ ] Deployment URL (if successfully deployed)
 
-The application should be interpreted according to the data sources and API configuration used during execution.
+## ⚠️ Limitations
 
-Important limitations include:
+- Market information depends on the configured data providers and their availability.
+- Missing or stale external data may affect analytical outputs.
+- Recommendations may use rule-based scoring and should be interpreted according to the implemented logic.
+- LLM-generated text, where enabled, may contain errors.
+- This prototype is not a substitute for a SEBI-registered investment adviser or independent financial research.
 
-- Market data may depend on external API availability.
-- API responses can vary with provider limits and market-data freshness.
-- LLM-generated text can contain errors and should not be treated as authoritative financial advice.
-- Scoring/rule-based recommendations depend on the formulas implemented in the project.
-- The prototype is intended for educational and decision-support purposes.
+## 🌐 Deployment
 
-## 14. Responsible AI / Financial Safety
+**Live application:** _Add the verified public deployment URL here._
 
-The application is designed as a **financial decision-support prototype**.
+> Do not mark the application as deployed until the hosted version has been tested successfully.
 
-It should not be used as a substitute for:
+## 🛣️ Future Improvements
 
-- A SEBI-registered investment adviser
-- Professional financial planning
-- Independent investment research
-- Verification of current market information
+- [ ] Stronger validation of market data
+- [ ] More robust news and sentiment analysis
+- [ ] Improved strategy evaluation and backtesting
+- [ ] Portfolio optimization
+- [ ] Monitoring and error reporting
+- [ ] Better privacy and authentication controls
 
-Users should independently verify market data and consider their own financial circumstances before making investment decisions.
+---
 
-## 15. Future Scope
+<div align="center">
 
-Possible extensions include:
+*Built for learning. Not financial advice.*
 
-- More reliable real-time market-data integration
-- Stronger RAG-based news analysis
-- Improved LLM reasoning and report generation
-- Full portfolio-level optimization
-- Backtesting and recommendation evaluation
-- Multilingual investment reports
-- More advanced risk models
-- Cloud deployment and monitoring
-- Improved authentication and data privacy controls
-
-
-
-
+</div>
