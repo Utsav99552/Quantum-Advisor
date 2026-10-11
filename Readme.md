@@ -342,16 +342,6 @@ Possible extensions include:
 - Cloud deployment and monitoring
 - Improved authentication and data privacy controls
 
-## 16. Academic Context
 
-**CA-2: Coding-Based Assignment — FinTech + AI**
-
-**Project:** Investment Analysis Agent
-
-**Team:**
-- Parnika Jain — 23070126087
-- Srishti Tripathi — 23070126131
-
----
 
 
